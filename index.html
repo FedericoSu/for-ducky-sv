@@ -258,9 +258,53 @@
       }
     }
 
+    // Sonidos sintetizados con Web Audio (sin archivos)
+    let audio;
+
+    // Una nota que va pasando por las frecuencias indicadas
+    function tone({ freqs, dur, type = "sine", filter, vol = 0.3, delay = 0 }) {
+      audio = audio || new (window.AudioContext || window.webkitAudioContext)();
+      if (audio.state === "suspended") audio.resume();
+
+      const t = audio.currentTime + delay;
+      const osc = audio.createOscillator();
+      const gain = audio.createGain();
+      osc.type = type;
+      osc.frequency.setValueAtTime(freqs[0], t);
+      freqs.slice(1).forEach((f, i) =>
+        osc.frequency.linearRampToValueAtTime(f, t + dur * (i + 1) / (freqs.length - 1))
+      );
+      gain.gain.setValueAtTime(0.001, t);
+      gain.gain.exponentialRampToValueAtTime(vol, t + 0.03);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + dur);
+
+      let node = osc;
+      if (filter) {
+        const f = audio.createBiquadFilter();
+        f.type = "bandpass";
+        f.frequency.value = filter;
+        f.Q.value = 2;
+        node = osc.connect(f);
+      }
+      node.connect(gain).connect(audio.destination);
+      osc.start(t);
+      osc.stop(t + dur);
+    }
+
+    const play = {
+      "🐱": () => tone({ freqs: [500, 900, 600], dur: 0.6, type: "sawtooth", filter: 1200, vol: 0.5 }),
+      "🐶": () => [0, 0.22].forEach(delay =>
+        tone({ freqs: [420, 160], dur: 0.15, type: "square", filter: 600, vol: 0.5, delay })),
+      "🦆": () => [0, 0.25].forEach(delay =>
+        tone({ freqs: [330, 250], dur: 0.18, type: "sawtooth", filter: 1000, vol: 0.6, delay })),
+      hug: () => [523, 659, 784, 1047].forEach((f, i) =>
+        tone({ freqs: [f, f], dur: 0.5, vol: 0.2, delay: i * 0.12 }))
+    };
+
     document.getElementById("hugBtn").addEventListener("click", () => {
+      play.hug();
       floatUp(["💖", "💗", "💕", "🌸", "✨", "🤗", "💞"]);
-      say("¡Te mandamos un abrazo gigante! 🤗");
+      say("Aunque no te des cuenta, sos lo más ✨🤗");
     });
 
     // Tocar los animalitos que saltan los hace cantar
@@ -268,6 +312,7 @@
       j.addEventListener("click", () => {
         const e = j.textContent;
         say(e === "🐱" ? sounds.cat : e === "🐶" ? sounds.dog : sounds.duck);
+        play[e]();
         floatUp([e], 5);
       })
     );
