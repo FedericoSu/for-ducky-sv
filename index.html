@@ -1,116 +1,276 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Duck Paradise</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Fuerza Ceci</title>
   <link rel="icon" href="ducky.png" type="image/png">
 
   <style>
+    * { box-sizing: border-box; }
+
     body {
       margin: 0;
-      font-family: Arial, sans-serif;
-      background: linear-gradient(135deg, #c2f0ff, #fff7c2);
+      font-family: "Segoe UI", Arial, sans-serif;
+      background: linear-gradient(135deg, #c2f0ff, #ffd6e8, #fff7c2);
+      background-size: 300% 300%;
+      animation: bg 14s ease infinite;
+      min-height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
-      min-height: 100vh;
       text-align: center;
+      overflow-x: hidden;
+    }
+    @keyframes bg {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
     }
 
     .card {
-      background: white;
-      padding: 40px;
-      border-radius: 20px;
+      position: relative;
+      z-index: 2;
+      background: rgba(255,255,255,0.92);
+      padding: 32px 24px;
+      margin: 16px;
+      border-radius: 24px;
       box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-      width: 90%;
-      max-width: 600px;
+      width: 100%;
+      max-width: 640px;
     }
 
     h1 {
-      font-size: 2.5em;
-      margin-bottom: 15px;
-      color: #ffb703;
+      font-size: clamp(1.8rem, 7vw, 2.8rem);
+      margin: 0 0 8px;
+      color: #ff6fa5;
     }
 
-    h2 {
-      font-weight: normal;
-      color: #555;
-      margin-bottom: 25px;
-    }
+    .subtitle { color: #666; margin: 0 0 20px; }
 
-    img {
-      width: 200px;
-      margin-bottom: 25px;
+    /* Fila de animalitos que saltan */
+    .jumpers {
+      display: flex;
+      justify-content: center;
+      gap: 18px;
+      font-size: clamp(2.6rem, 12vw, 4rem);
+      margin: 10px 0 24px;
+      min-height: 80px;
     }
-
-    .features {
-      text-align: left;
-      margin: 20px 0;
-    }
-
-    .features li {
-      margin-bottom: 10px;
-    }
-
-    .cta-button {
-      background: #ffb703;
-      color: white;
-      font-size: 1.2em;
-      padding: 15px 30px;
-      border: none;
-      border-radius: 12px;
+    .jumper {
+      display: inline-block;
       cursor: pointer;
-      transition: 0.3s;
+      animation: jump 1s ease-in-out infinite;
+      transform-origin: bottom center;
+      user-select: none;
+    }
+    .jumper:nth-child(2) { animation-delay: .2s; }
+    .jumper:nth-child(3) { animation-delay: .4s; }
+    .jumper:nth-child(4) { animation-delay: .6s; }
+    .jumper:nth-child(5) { animation-delay: .8s; }
+    @keyframes jump {
+      0%, 100% { transform: translateY(0) scale(1.05, .9); }
+      40%      { transform: translateY(-38px) scale(.95, 1.08); }
+      70%      { transform: translateY(0) scale(1.1, .88); }
     }
 
-    .cta-button:hover {
-      background: #ffa200;
+    .duck-photo {
+      width: 180px;
+      max-width: 60%;
+      border-radius: 50%;
+      border: 5px solid #ffb703;
+      margin-bottom: 20px;
     }
 
-    #conversionMessage {
-      margin-top: 20px;
-      font-size: 1.5em;
+    #message {
+      min-height: 3.2em;
+      font-size: 1.25em;
       color: #2a9d8f;
-      display: none;
+      font-weight: 600;
+      margin: 8px 0 20px;
     }
 
+    .buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+    }
+    button {
+      font-size: 1.05em;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 14px;
+      color: white;
+      cursor: pointer;
+      transition: transform .15s, filter .15s;
+      font-family: inherit;
+    }
+    button:hover { transform: translateY(-3px) rotate(-1deg); filter: brightness(1.08); }
+    button:active { transform: scale(.94); }
+    .b-cat   { background: #ff8fab; }
+    .b-dog   { background: #c08552; }
+    .b-duck  { background: #ffb703; }
+    .b-hug   { background: #e5383b; }
+    .b-conf  { background: #8e7dff; }
+    .b-msg   { background: #2a9d8f; }
+
+    /* Animalitos invocados */
+    .spawn {
+      position: fixed;
+      z-index: 1;
+      pointer-events: none;
+      bottom: -10px;
+      animation: hop var(--dur, 3.2s) ease-in forwards;
+    }
+    @keyframes hop {
+      0%   { transform: translate(0, 0) rotate(0); opacity: 1; }
+      15%  { transform: translate(calc(var(--dx) * .15), -90px) rotate(-12deg); }
+      30%  { transform: translate(calc(var(--dx) * .3), 0) rotate(8deg); }
+      45%  { transform: translate(calc(var(--dx) * .45), -110px) rotate(-12deg); }
+      60%  { transform: translate(calc(var(--dx) * .6), 0) rotate(8deg); }
+      80%  { transform: translate(calc(var(--dx) * .8), -80px) rotate(-8deg); opacity: 1; }
+      100% { transform: translate(var(--dx), 0) rotate(0); opacity: 0; }
+    }
+
+    .float {
+      position: fixed;
+      z-index: 3;
+      pointer-events: none;
+      top: 100vh;
+      animation: rise var(--dur, 3s) ease-out forwards;
+    }
+    @keyframes rise {
+      to { transform: translateY(-115vh) rotate(var(--rot, 20deg)); opacity: 0; }
+    }
+
+    .confetti {
+      position: fixed;
+      z-index: 3;
+      top: -20px;
+      width: 10px;
+      height: 14px;
+      pointer-events: none;
+      animation: fall var(--dur, 3s) linear forwards;
+    }
+    @keyframes fall {
+      to { transform: translate(var(--dx, 0), 110vh) rotate(720deg); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      body, .jumper { animation: none; }
+    }
   </style>
 </head>
 
 <body>
 
   <div class="card">
-    <h1>Adoptá un Pato Hoy 🦆</h1>
-    <h2>La mejor experiencia de compañía</h2>
+    <h1>Fuerza Ceci, ¡tú puedes! :3</h1>
+    <p class="subtitle">Aquí hay un montón de animalitos lindos que creen en ti 💖</p>
 
-    <img src="cuteDuck.jpg" alt="Happy Duck">
+    <div class="jumpers" aria-hidden="true">
+      <span class="jumper">🐱</span>
+      <span class="jumper">🐶</span>
+      <span class="jumper">🦆</span>
+    </div>
 
-    <ul class="features">
-      <li>✔ 100% amigables</li>
-      <li>✔ Perfectos para fotos adorables</li>
-      <li>✔ Ideales para granjas, jardines o vibras zen</li>
-      <li>✔ Soporte 24/7</li>
-    </ul>
+    <img class="duck-photo" src="cuteDuck.jpg" alt="Patito feliz">
 
-    <h2>El secreto de la felicidad es un pato ¿Alguna vez viste a alguien triste con un pato? ¡No esperes más!</h2>
-    
-    <button class="cta-button" id="adoptBtn">
-      ¡Quiero mi pato!
-    </button>
+    <div id="message" aria-live="polite">Tocá el botón (o a los animalitos) para recibir cositas lindas ✨</div>
 
-    <div id="conversionMessage">
-      🎉 ¡Gracias por adoptar un pato!
+    <div class="buttons">
+      <button class="b-hug"  id="hugBtn">💖 Lluvia de cariño</button>
     </div>
   </div>
 
   <script>
-    const adoptBtn = document.getElementById("adoptBtn");
-    const conversionMessage = document.getElementById("conversionMessage");
+    const msgEl = document.getElementById("message");
 
-    adoptBtn.addEventListener("click", () => {
-      conversionMessage.style.display = "block";
-      console.log("Conversion registrada: Duck adopted 🦆");
+    const animals = {
+      cat:  ["🐱", "😺", "😸", "🐈", "🐈‍⬛", "😻"],
+      dog:  ["🐶", "🐕", "🐩", "🦮", "🐕‍🦺"],
+      duck: ["🦆", "🐥", "🐤", "🐣"]
+    };
+
+    const sounds = { cat: "¡Miau! 🐱", dog: "¡Guau guau! 🐶", duck: "¡Cuac cuac! 🦆" };
+
+    const encouragements = [
+      "Fuerza Ceci, tú puedes :3",
+      "Paso a pasito se llega lejos 🐾",
+      "Sos más fuerte de lo que pensás 💪",
+      "Un patito dice: ¡cuac, vos podés! 🦆",
+      "Si te cansás, descansá. Después seguís 🌷",
+      "Los gatitos creen en vos 🐱",
+      "Los perritos también, y mueven la cola 🐶",
+      "Lo estás haciendo mejor de lo que creés ✨",
+      "Todo esfuerzo cuenta, aunque sea chiquito 🌱",
+      "Aunque no te des cuenta, sos lo más 🤗"
+    ];
+
+    const rand = arr => arr[Math.floor(Math.random() * arr.length)];
+    const say = t => { msgEl.textContent = t; };
+
+    function spawnAnimals(kind) {
+      const count = 7;
+      for (let i = 0; i < count; i++) {
+        setTimeout(() => {
+          const el = document.createElement("div");
+          el.className = "spawn";
+          el.textContent = rand(animals[kind]);
+          el.style.left = Math.random() * 80 + "vw";
+          el.style.fontSize = (2 + Math.random() * 2) + "rem";
+          el.style.setProperty("--dx", (Math.random() * 40 - 20) + "vw");
+          el.style.setProperty("--dur", (2.6 + Math.random() * 1.6) + "s");
+          document.body.appendChild(el);
+          setTimeout(() => el.remove(), 4500);
+        }, i * 120);
+      }
+      say(sounds[kind] + "  " + rand(encouragements));
+    }
+
+    function floatUp(emojis, n = 25) {
+      for (let i = 0; i < n; i++) {
+        setTimeout(() => {
+          const el = document.createElement("div");
+          el.className = "float";
+          el.textContent = rand(emojis);
+          el.style.left = Math.random() * 95 + "vw";
+          el.style.fontSize = (1.4 + Math.random() * 2) + "rem";
+          el.style.setProperty("--dur", (2.5 + Math.random() * 2) + "s");
+          el.style.setProperty("--rot", (Math.random() * 60 - 30) + "deg");
+          document.body.appendChild(el);
+          setTimeout(() => el.remove(), 5000);
+        }, i * 70);
+      }
+    }
+
+    function confetti(n = 80) {
+      const colors = ["#ff8fab", "#ffb703", "#8e7dff", "#2a9d8f", "#4cc9f0", "#e5383b"];
+      for (let i = 0; i < n; i++) {
+        const el = document.createElement("div");
+        el.className = "confetti";
+        el.style.left = Math.random() * 100 + "vw";
+        el.style.background = rand(colors);
+        el.style.setProperty("--dx", (Math.random() * 20 - 10) + "vw");
+        el.style.setProperty("--dur", (2 + Math.random() * 2) + "s");
+        document.body.appendChild(el);
+        setTimeout(() => el.remove(), 4500);
+      }
+    }
+
+    document.getElementById("hugBtn").addEventListener("click", () => {
+      floatUp(["💖", "💗", "💕", "🌸", "✨", "🤗", "💞"]);
+      say("¡Te mandamos un abrazo gigante! 🤗");
     });
+
+    // Tocar los animalitos que saltan los hace cantar
+    document.querySelectorAll(".jumper").forEach(j =>
+      j.addEventListener("click", () => {
+        const e = j.textContent;
+        say(e === "🐱" ? sounds.cat : e === "🐶" ? sounds.dog : sounds.duck);
+        floatUp([e], 5);
+      })
+    );
   </script>
 
 </body>
